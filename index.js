@@ -9,7 +9,10 @@ const port = process.env.PORT || 3000;
 const sequelize = require("./utils/database");
 const authRoutes = require("./routes/auth");
 
-app.use(cors());
+app.use(cors({
+  origin:'*',
+  methods:['GET','POST'],
+}));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ extended: false }));
 
