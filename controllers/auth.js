@@ -72,6 +72,7 @@ exports.logIn = async (req, res, next) => {
       success:true,
       message: "Login successful.",
       token: generateToken(user.id,user.email),
+      userId: user.id,
       useremail: user.email,
       isPro: user.isProUser,
     });

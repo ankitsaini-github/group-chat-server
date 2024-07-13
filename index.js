@@ -8,6 +8,9 @@ const port = process.env.PORT || 3000;
 
 const sequelize = require("./utils/database");
 const authRoutes = require("./routes/auth");
+const chatRoutes = require("./routes/chat");
+const Users = require("./models/users")
+const Chats = require("./models/chats")
 
 app.use(cors({
   origin:'*',
@@ -16,7 +19,12 @@ app.use(cors({
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ extended: false }));
 
+
 app.use("/auth", authRoutes);
+app.use("/chat", chatRoutes);
+
+Users.hasMany(Chats);
+Chats.belongsTo(Users);
 
 sequelize
   .sync()
