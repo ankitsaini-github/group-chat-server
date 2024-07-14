@@ -1,9 +1,17 @@
+const { Op } = require('sequelize');
 const Chats = require("../models/chats");
 
 exports.getAllChat = async (req,res) => {
+  let lastId = req.query.lastId;
+
+  if(lastId === 'undefined'){
+    lastId = 0;
+  }
 
   try {
-    const result = await Chats.findAll();
+    const result = await Chats.findAll({where: {
+      id: { [Op.gt]: lastId },
+    },});
     res.status(200).json({success:true,messages:result})
   } catch (error) {
     res.status(500).json({ error: "Failed to fetch messages." });
