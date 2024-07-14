@@ -4,7 +4,7 @@ const Chats = require("../models/chats");
 exports.getAllChat = async (req,res) => {
   let lastId = req.query.lastId;
 
-  if(lastId === 'undefined'){
+  if(!lastId || lastId === 'undefined'){
     lastId = 0;
   }
 
