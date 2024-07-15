@@ -11,6 +11,8 @@ const authRoutes = require("./routes/auth");
 const chatRoutes = require("./routes/chat");
 const Users = require("./models/users")
 const Chats = require("./models/chats")
+const Groups = require("./models/groups")
+const GroupMembers = require("./models/groupmembers")
 
 app.use(cors({
   origin:'*',
@@ -25,6 +27,8 @@ app.use("/chat", chatRoutes);
 
 Users.hasMany(Chats);
 Chats.belongsTo(Users);
+Groups.belongsToMany(Users, { through: GroupMembers, foreignKey: 'groupId' });
+Users.belongsToMany(Groups, { through: GroupMembers, foreignKey: 'userId' });
 
 sequelize
   .sync()

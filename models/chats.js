@@ -1,6 +1,7 @@
 const Sequelize = require('sequelize');
 
 const sequelize = require('../utils/database');
+const Groups = require('./groups');
 
 const Chats = sequelize.define('chats', {
   id: {
@@ -16,7 +17,14 @@ const Chats = sequelize.define('chats', {
   sender: {
     type: Sequelize.STRING,
     allowNull: false,
-  }
+  },
+  GroupID: {
+    type: Sequelize.INTEGER,
+    references: {
+        model: Groups,
+        key: 'groupId'
+    }
+},
 });
 
 module.exports = Chats;
