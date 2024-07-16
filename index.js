@@ -9,6 +9,8 @@ const port = process.env.PORT || 3000;
 const sequelize = require("./utils/database");
 const authRoutes = require("./routes/auth");
 const chatRoutes = require("./routes/chat");
+const adminRoutes = require("./routes/admin");
+
 const Users = require("./models/users")
 const Chats = require("./models/chats")
 const Groups = require("./models/groups")
@@ -24,11 +26,18 @@ app.use(bodyParser.json({ extended: false }));
 
 app.use("/auth", authRoutes);
 app.use("/chat", chatRoutes);
+app.use("/admin", adminRoutes);
 
 Users.hasMany(Chats);
 Chats.belongsTo(Users);
-Groups.belongsToMany(Users, { through: GroupMembers, foreignKey: 'groupId' });
-Users.belongsToMany(Groups, { through: GroupMembers, foreignKey: 'userId' });
+Groups.belongsToMany(Users, { through: GroupMembers, foreignKey:'groupId'});
+Users.belongsToMany(Groups, { through: GroupMembers});
+// GroupMembers.belongsTo(Users, { foreignKey: 'userId' });
+// GroupMembers.belongsTo(Groups, { foreignKey: 'groupId' });
+// Groups.hasMany(GroupMembers);
+// GroupMembers.belongsTo(Groups);
+// Users.hasMany(GroupMembers);
+// GroupMembers.belongsTo(Users);
 
 sequelize
   .sync()

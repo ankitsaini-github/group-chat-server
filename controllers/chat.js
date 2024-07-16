@@ -3,6 +3,7 @@ const Chats = require("../models/chats");
 
 exports.getAllChat = async (req,res) => {
   let lastId = req.query.lastId;
+  const groupId=req.query.groupId;
 
   if(!lastId || lastId === 'undefined'){
     lastId = 0;
@@ -11,21 +12,24 @@ exports.getAllChat = async (req,res) => {
   try {
     const result = await Chats.findAll({where: {
       id: { [Op.gt]: lastId },
+      groupId
     },});
     res.status(200).json({success:true,messages:result})
   } catch (error) {
+    console.log('Error file fetching chats : ',error)
     res.status(500).json({ error: "Failed to fetch messages." });
   }
 }
 
 exports.addChat = async (req,res) => {
-  const {message} = req.body;
+  const {message, groupId} = req.body;
 
   try {
     const result = await Chats.create({
       message,
       sender: req.user.name,
       userId: req.user.id,
+      groupId
     });
     res.status(201).json({success:true,message:result})
   } catch (error) {
