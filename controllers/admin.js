@@ -53,3 +53,55 @@ exports.getGroups = async(req,res)=>{
     res.status(500).json({ error: "Failed to fetch groups." });
   }
 }
+
+exports.getGroupMembers = async(req,res)=>{
+  const groupId=req.query.groupId;
+  try {
+    const result = await Groups.findOne({
+      where: { groupId },
+      include: [{
+        model: Users,
+        attributes: ['id','name'],
+        through: { attributes: ['isAdmin'] }
+      }]
+    });
+
+    console.log('groups = ',result)
+    res.status(200).json({ success: true, groupMembers:result });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch group members." });
+  }
+}
+
+exports.addGroupMembers = async(req,res)=>{
+  const {userEmail, isAdmin, groupId} = req.body;
+
+  try {
+
+    const user = await Users.findOne({ where: { email: userEmail } });
+    if(!user){
+      return res.status(404).json({ error: "User not found." });
+    }
+    
+    const existingMember = await GroupMembers.findOne({ 
+      where: { 
+        userId: user.id,
+        groupId: groupId
+      }
+    });
+    if (existingMember) {
+      return res.status(400).json({ error: "User is already a member of the group." });
+    }
+    const result = await GroupMembers.create({
+      userId: user.id,
+      groupId,
+      isAdmin: isAdmin || false
+    });
+
+    res.status(201).json({ success: true, message: "User added to group successfully.", newUser:{id:result.userId, name:user.name, groupmembers:{isAdmin:result.isAdmin}}  });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to add user to group." });
+  }
+}
