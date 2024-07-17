@@ -6,6 +6,27 @@ require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 3000;
 
+const io = require('socket.io')(3001,{
+  cors:{ origins:['*'] },
+});
+
+io.on('connection',(socket)=>{
+  console.log(socket.id)
+  
+  socket.on('join-group',groupId=>{
+    socket.join(groupId);
+  })
+
+  socket.on('send-chat', (data,groupId)=>{
+    console.log('chat = ',data);
+    if(groupId){
+      socket.to(groupId).emit('receive-chat',data.message);
+
+    }
+  })
+
+})
+
 const sequelize = require("./utils/database");
 const authRoutes = require("./routes/auth");
 const chatRoutes = require("./routes/chat");
