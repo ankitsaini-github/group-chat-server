@@ -18,7 +18,7 @@ const GroupMembers = require("./models/groupmembers")
 
 app.use(cors({
   origin:'*',
-  methods:['GET','POST'],
+  methods:['GET','POST','DELETE'],
 }));
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json({ extended: false }));

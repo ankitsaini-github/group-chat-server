@@ -105,3 +105,34 @@ exports.addGroupMembers = async(req,res)=>{
     res.status(500).json({ error: "Failed to add user to group." });
   }
 }
+
+exports.removeGroupMembers = async(req,res)=>{
+  const userId = req.user.id;
+  const {id,groupId}=req.query;
+
+  try {
+    
+    const adminMember = await GroupMembers.findOne({ 
+      where: { 
+        userId: userId,
+        groupId: groupId,
+        isAdmin:true
+      }
+    });
+    if (!adminMember) {
+      return res.status(400).json({ error: "You do not have Admin Rights." });
+    }
+    
+    const user = await GroupMembers.findOne({ where: { userId: id, groupId } });
+    if(!user){
+      return res.status(404).json({ error: "User not found." });
+    }
+
+    await user.destroy();
+    
+    res.status(200).json({ success: true, message: "User removed from group successfully."});
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to remove user from group." });
+  }
+}
