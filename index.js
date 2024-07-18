@@ -6,7 +6,9 @@ require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 3000;
 
-const io = require('socket.io')(3001,{
+const server = require('http').createServer(app);
+
+const io = require('socket.io')(server,{
   cors:{ origins:['*'] },
 });
 
@@ -63,10 +65,9 @@ Users.belongsToMany(Groups, { through: GroupMembers});
 sequelize
   .sync()
   .then(() => {
-    app.listen(3000);
-    console.log(
-      `\u001b[1;32m app listening on port number --> ${port} \u001b[0m`
-    );
+    server.listen(port, () => {
+      console.log(`\u001b[1;32m Server listening on port number : ${port} \u001b[0m`);
+    });
   })
   .catch((err) => {
     console.log(err);
