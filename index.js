@@ -1,4 +1,5 @@
 const express = require('express');
+const cron = require('node-cron');
 const bodyParser = require("body-parser");
 const cors = require("cors");
 require("dotenv").config();
@@ -38,6 +39,8 @@ const Users = require("./models/users")
 const Chats = require("./models/chats")
 const Groups = require("./models/groups")
 const GroupMembers = require("./models/groupmembers")
+const ArchivedChats = require('./models/archivedchats');
+const { Op } = require('sequelize');
 
 app.use(cors({
   origin:'*',
@@ -61,6 +64,42 @@ Users.belongsToMany(Groups, { through: GroupMembers});
 // GroupMembers.belongsTo(Groups);
 // Users.hasMany(GroupMembers);
 // GroupMembers.belongsTo(Users);
+
+//cron job at daily-midnight
+cron.schedule('0 0 * * *', async () => {
+  try {
+    // Get all chats older than 1 day
+    const oldChats = await Chats.findAll({
+      where: {
+        createdAt: {
+          [Op.lt]: new Date(Date.now() - 24 * 60 * 60 * 1000),
+        },
+      },
+    });
+
+    // Archive old chats
+    const archivedChats = oldChats.map(chat => ({
+      message: chat.message,
+      sender: chat.sender,
+      groupId: chat.groupId,
+      userId: chat.userId,
+      createdAt: chat.createdAt,
+    }));
+
+    await ArchivedChats.bulkCreate(archivedChats);
+
+    // Delete old chats
+    await Chats.destroy({
+      where: {
+        id: oldChats.map(chat => chat.id),
+      },
+    });
+
+    console.log('Successfully archived and deleted old chats');
+  } catch (error) {
+    console.error('Error archiving and deleting old chats:', error);
+  }
+});
 
 sequelize
   .sync()
